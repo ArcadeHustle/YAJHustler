@@ -14,15 +14,16 @@ def scrape(page,xpath)
 		end
 	
 		image = item.at_xpath('./a/div/div/*[@class="hide product_image"]/@data-src') # ..//image_container/product_image_wrap
+		image = image.to_s.gsub('&dc=1&sr.fs=20000','')
 		yajproxy = "https://buyee.jp#{item.at_xpath('.//a/@href')}"
+		yajproxy = yajproxy.split("?")[0]
 		title = item.at_xpath('.//a/div/*[@class="product_title"]/text()').to_s.strip
 		price = item.at_xpath('.//a/div/*[@class="product_price"]/text()').to_s.strip
 
-		puts image.to_s.gsub('&dc=1&sr.fs=20000','')
-		puts yajproxy.split("?")[0]
-		puts title
-		puts price
-		p "---------------------------------------------------------------------------------------------------"
+		puts "<a href=\"#{yajproxy}\"><img src=\"#{image}\"></img></a><br>"
+		puts "#{title}<br>"
+		puts "#{price}<br>"
+		puts "<br>"
 	end
 end
 
@@ -31,9 +32,11 @@ end
 #
 
 def hunt(category,terms)
+
+	puts "<meta charset=\"utf-8\"/>"
 	
 	endpoint = "https://buyee.jp/item/search/query/#{terms}/category/#{category}"
-	puts "Hitting Endpoint: #{endpoint}"
+	puts "Hitting Endpoint: #{endpoint}<br>"
 	body = HTTP.get(endpoint).to_s
 
 	page = Nokogiri::HTML(body, nil, 'utf-8');
@@ -53,7 +56,7 @@ def hunt(category,terms)
 	shufflepoints = (2..numpages.to_i).to_a.shuffle
 	shufflepoints.each { |num|
 		target = endpoint + "?translationType=2&page=#{num}&vic=search_other"
-		puts "Hitting: #{target}"
+		puts "Hitting: #{target}<br>"
 
 		body = HTTP.get(target).to_s
 		page = Nokogiri::HTML(body, nil, 'utf-8');
